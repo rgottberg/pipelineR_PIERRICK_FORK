@@ -1,21 +1,21 @@
-#' Fetch list of symbols from a PostgreSQL schema
+#' Fetch S&P 500 symbols from the database
 #'
-#' This function queries the student's database schema to retrieve the list of
-#' distinct `symbol` and `index_ts` from the `data_sp500` table.
+#' This function retrieves a list of distinct symbols and their corresponding index_ts
+#' from the `sp500.info` table in the PostgreSQL database.
 #'
 #' @param con A valid DBI database connection.
-#' @param schema A character string specifying the schema name. Defaults to the environment variable `PG_SCHEMA`.
 #'
-#' @return A tibble with columns `symbol` and `index_ts`.
+#' @return A tibble containing two columns: `symbol` and `index_ts`.
+#' If no symbols are found, a warning is issued and an empty tibble is returned.
 #' @export
-fetch_symbols <- function(con, schema = Sys.getenv("PG_SCHEMA")) {
+fetch_symbols <- function(con) {
 
-  if (missing(con) || missing(schema)) {
-    stop("Both 'con' and 'schema' must be provided.")
+  if (is.null(con)) {
+    stop("Parameter 'con' must be provided.")
   }
 
   query <- glue::glue_sql(
-    "SELECT DISTINCT symbol, index_ts FROM {`schema`}.data_sp500",
+    "SELECT DISTINCT symbol, index_ts FROM sp500.info",
     .con = con
   )
 
