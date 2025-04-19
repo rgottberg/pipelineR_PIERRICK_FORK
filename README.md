@@ -1,7 +1,7 @@
 pipelineR
 ================
 
-<img src="man/figures/logo.png" align="right" height="120" />
+# <img src="man/figures/logo.png" align="right" height="120" />
 
 Welcome to the **pipelineR** package! 🚀
 
