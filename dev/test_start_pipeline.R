@@ -2,7 +2,7 @@ devtools::install()
 
 con <- pipelineR::connect_db()
 
-message("Testing start_pipeline() on a small batch... 🚀")
+message("Testing start_pipeline() on a small batch...")
 
 pipelineR::start_pipeline(
   from = Sys.Date() - 5,
