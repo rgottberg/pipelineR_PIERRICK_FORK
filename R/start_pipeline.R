@@ -55,8 +55,8 @@ start_pipeline <- function(from = Sys.Date() - 7, to = Sys.Date(), batch_size = 
         message("No data returned for batch.")
         summary_table <- log_summary(summary_table, batch, 0, "error", "No data retrieved.")
       } else {
-        push_new_data(con, new_data)
-        summary_table <- log_summary(summary_table, batch, nrow(new_data), "ok", "Data pushed successfully.")
+        insert_new_data(con, new_data)  # 🔥 ici on utilise insert_new_data
+        summary_table <- log_summary(summary_table, batch, nrow(new_data), "ok", "Data inserted successfully.")
       }
 
     }, error = function(e) {
