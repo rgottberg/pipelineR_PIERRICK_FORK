@@ -2,8 +2,10 @@
 ^renv\.lock$
 ^pipelineR\.Rproj$
 ^\.Rproj\.user$
-renv.lock
-/renv
 ^README\.Rmd$
 ^\.github$
 .Rprofile
+^LICENSE\.md$
+^dev$
+^\.Rprofile$
+^/renv$
