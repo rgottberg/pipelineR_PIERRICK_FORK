@@ -52,7 +52,7 @@ yahoo_query_data <- function(batch_list, from, to, retry = TRUE) {
       low = low,
       close = close,
       volume = volume,
-      adjusted = adjusted
+      close_adjusted = adjusted   # ⬅️ Correction ici
     ) |>
     dplyr::mutate(
       index_ts = if ("index_ts" %in% colnames(batch_list)) {
@@ -63,6 +63,7 @@ yahoo_query_data <- function(batch_list, from, to, retry = TRUE) {
       source = "yahoo_finance"
     ) |>
     dplyr::arrange(symbol, date)
+
 
   return(cleaned_data)
 }

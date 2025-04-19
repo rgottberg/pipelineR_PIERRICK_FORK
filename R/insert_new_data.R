@@ -7,11 +7,11 @@
 #' @param schema The schema name (e.g., \"student_paul\").
 #' @param new_data A tibble containing the new rows to insert. Must match the database structure.
 #'
-#' @return Nothing. Executes an insertion query.
+#' @return True if all is well, otherwise an error is raised.
 #' @export
 insert_new_data <- function(con, schema = Sys.getenv("PG_SCHEMA"), new_data) {
 
-  if (missing(con) || missing(new_data)) {
+  if (is.null(con) || is.null(new_data)) {
     stop("Both 'con' and 'new_data' must be provided.")
   }
 
@@ -31,5 +31,5 @@ insert_new_data <- function(con, schema = Sys.getenv("PG_SCHEMA"), new_data) {
 
   message(nrow(new_data), " new rows inserted into ", schema, ".data_sp500")
 
-  invisible(NULL)
+  return(TRUE)
 }
