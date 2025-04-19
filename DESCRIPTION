@@ -1,10 +1,9 @@
 Package: pipelineR
-Title: What the Package Does (One Line, Title Case)
+Title: Tools to Automate Financial Data Pipelines with R
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    person("Kinif", "Pierrick", , "pierrick.kinif@datagrowth.io", role = 'auth')
+Description: processR provides tools to automate the retrieval, processing, and storage of financial market data pipelines in PostgreSQL. It includes helpers for batching API calls, validating and inserting new data, and logging execution results. Designed for integration into Jenkins pipelines, processR makes building daily or periodic ETL (Extract, Transform, Load) processes in R easy and reliable.License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
