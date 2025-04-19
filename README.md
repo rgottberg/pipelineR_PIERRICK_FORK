@@ -85,7 +85,7 @@ pipelineR::start_pipeline(
 ## Tests
 
 All major functions are covered by `testthat` unit tests.  
-Tests are automatically executed in the CI/CD pipeline to ensure the
+Tests are automatically executed in the CI pipeline to ensure the
 package remains stable after each update.
 
 ------------------------------------------------------------------------
