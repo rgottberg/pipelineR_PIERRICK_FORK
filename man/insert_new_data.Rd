@@ -4,14 +4,14 @@
 \alias{insert_new_data}
 \title{Insert new data into the student's PostgreSQL table}
 \usage{
-insert_new_data(con, schema = Sys.getenv("PG_SCHEMA"), new_data)
+insert_new_data(data, con, schema = Sys.getenv("PG_SCHEMA"))
 }
 \arguments{
+\item{data}{A tibble containing the new rows to insert. Must match the database structure.}
+
 \item{con}{A valid DBI database connection.}
 
 \item{schema}{The schema name (e.g., \"student_paul\").}
-
-\item{new_data}{A tibble containing the new rows to insert. Must match the database structure.}
 }
 \value{
 True if all is well, otherwise an error is raised.

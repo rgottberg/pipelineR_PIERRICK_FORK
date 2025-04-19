@@ -1,84 +1,94 @@
-#' Start the full data pipeline
+#' Start the full data pipeline: fetch, insert and log
 #'
-#' This function connects to the database, fetches the list of symbols,
-#' downloads new OHLCV data from Yahoo Finance in batches,
-#' filters out already existing data, inserts the new data into the database,
-#' and logs each batch processing result.
+#' This function fetches data from Yahoo Finance for a range of dates and inserts the results
+#' into the student's PostgreSQL database. It processes symbols in batches and logs the process.
 #'
-#' @param from A Date indicating the start date for historical data (default: 7 days ago).
-#' @param to A Date indicating the end date for historical data (default: today).
-#' @param batch_size An integer indicating how many symbols to fetch per batch (default: 25).
+#' @param from A Date object specifying the start date. Default is 7 days ago.
+#' @param to A Date object specifying the end date. Default is today.
+#' @param batch_size Number of tickers to process in each batch. Default is 25.
 #'
-#' @return Nothing. Runs the full data pipeline.
+#' @return Nothing. Inserts new data into PostgreSQL and logs batch processing in `pipeline_logs`.
 #' @export
 start_pipeline <- function(from = Sys.Date() - 7, to = Sys.Date(), batch_size = 25) {
 
+  # 1. Connect to PostgreSQL
   con <- connect_db()
+  message("Connection to database established.")
 
-  message("Connection to database established ✅")
+  # 2. Fetch symbols from database
+  symbols_tbl <- fetch_symbols(con)
 
-  # Fetch tickers assigned to the user
-  batch_indices <- fetch_symbols(con)
-
-  if (nrow(batch_indices) == 0) {
-    stop("No symbols available for this user.")
+  if (nrow(symbols_tbl) == 0) {
+    stop("No symbols found in database.")
   }
 
-  message(glue::glue("Fetched {nrow(batch_indices)} symbols."))
+  message(glue::glue("Fetched {nrow(symbols_tbl)} symbols."))
 
+  # 3. Initialize the summary log
   summary_table <- build_summary_table()
 
-  batches <- split_batch(batch_indices, batch_size)
-
-  user_login <- Sys.getenv("user_login")
-
-  start_time <- Sys.time()
+  # 4. Split into batches
+  batches <- split_batch(symbols_tbl, batch_size = batch_size)
 
   message("Starting pipeline...")
 
-  batch_counter <- 1
+  # 5. Loop over batches
+  for (batch_id in seq_along(batches)) {
 
-  for (batch in batches) {
+    batch <- batches[[batch_id]]
+    symbols_in_batch <- batch$symbol
 
-    message(glue::glue("\nProcessing batch {batch_counter}/{length(batches)}: {paste(batch$symbol, collapse = ', ')}"))
+    message(glue::glue("Processing batch {batch_id}/{length(batches)}: {paste(symbols_in_batch, collapse = ', ')}"))
 
     tryCatch({
 
-      new_data <- yahoo_query_data(
-        batch_list = batch,
-        from = from,
-        to = to,
-        retry = FALSE
-      )
+      # 5.1 Query Yahoo Finance
+      new_data <- yahoo_query_data(batch, from = from, to = to)
 
       if (is.null(new_data) || nrow(new_data) == 0) {
-        message("No data returned for batch.")
-        summary_table <- log_summary(summary_table, batch, 0, "error", "No data retrieved.")
-      } else {
-        insert_new_data(con, new_data)  # 🔥 ici on utilise insert_new_data
-        summary_table <- log_summary(summary_table, batch, nrow(new_data), "ok", "Data inserted successfully.")
+        stop("No data returned from Yahoo Finance API.")
       }
 
+      # 5.2 Insert into PostgreSQL
+      success <- new_data |>
+        format_data() |>
+        insert_new_data(con = con)
+
+      if (!success) {
+        stop("Failed to insert new data into the database.")
+      }
+
+      # 5.3 Log success
+      summary_table <- log_summary(
+        summary_table,
+        batch_id = batch_id,
+        symbol = paste(symbols_in_batch, collapse = ", "),
+        status = "ok",
+        n_rows = nrow(new_data),
+        message = "Batch processed successfully"
+      )
+
     }, error = function(e) {
-      message(glue::glue("Error while processing batch {batch_counter}: {e$message}"))
-      summary_table <- log_summary(summary_table, batch, 0, "error", e$message)
+      message(glue::glue("Error while processing batch {batch_id}: {e$message}"))
+
+      # Log error
+      summary_table <- log_summary(
+        summary_table,
+        batch_id = batch_id,
+        symbol = paste(symbols_in_batch, collapse = ", "),
+        status = "error",
+        n_rows = 0,
+        message = e$message
+      )
     })
 
-    Sys.sleep(sample(1:2, 1))  # Random small sleep to avoid API throttling
-    batch_counter <- batch_counter + 1
   }
 
-  end_time <- Sys.time()
-  elapsed_time <- round(difftime(end_time, start_time, units = "mins"), 2)
-
-  message(glue::glue("\nPipeline finished in {elapsed_time} minutes."))
-
-  # Push the full summary table into the database
-  push_summary_table(con, summary_table)
+  # 6. Push the summary logs into pipeline_logs table
+  push_summary_table(con = con, summary_table = summary_table)
 
   DBI::dbDisconnect(con)
 
-  message("Disconnected from database. ✅")
-
-  invisible(NULL)
+  message("Pipeline completed.")
 }
+

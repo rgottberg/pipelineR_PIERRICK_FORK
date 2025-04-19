@@ -1,35 +1,50 @@
-#' Insert new data into the student's PostgreSQL table
+#' Insert new stock data into the database
 #'
-#' This function inserts new rows into the `data_sp500` table in the specified schema.
-#' It assumes that the data has already been filtered by `check_existing_data()`.
+#' This function inserts new stock data into the student's data_sp500 table inside their schema.
+#' It automatically removes duplicates (already existing date/index_ts/metric) before inserting.
 #'
 #' @param con A valid DBI database connection.
-#' @param schema The schema name (e.g., \"student_paul\").
-#' @param new_data A tibble containing the new rows to insert. Must match the database structure.
+#' @param new_data A tibble matching the table structure.
 #'
-#' @return True if all is well, otherwise an error is raised.
+#' @return The number of rows actually inserted.
 #' @export
-insert_new_data <- function(con, schema = Sys.getenv("PG_SCHEMA"), new_data) {
+insert_new_data <- function(con, new_data) {
 
-  if (is.null(con) || is.null(new_data)) {
+  if (missing(con) || missing(new_data)) {
     stop("Both 'con' and 'new_data' must be provided.")
   }
 
-  if (nrow(new_data) == 0) {
-    message("No new data to insert.")
-    return(invisible(NULL))
+  schema <- Sys.getenv("PG_SCHEMA")
+
+  # Load already existing combinations
+  existing <- DBI::dbGetQuery(con, glue::glue_sql(
+    "SELECT date, index_ts, metric FROM {`schema`}.data_sp500",
+    .con = con
+  ))
+
+  # Prepare new_data (long format expected already)
+  new_data_prepared <- new_data |>
+    dplyr::semi_join(
+      tibble::as_tibble(existing) |>
+        dplyr::distinct(date, index_ts, metric),
+      by = c("date", "index_ts", "metric")
+      , negate = TRUE)  # Keep only rows NOT already existing
+
+  if (nrow(new_data_prepared) == 0) {
+    message("No new rows to insert.")
+    return(0)
   }
 
-  # Write the new data to the PostgreSQL table
+  # Insert
   DBI::dbWriteTable(
     conn = con,
     name = DBI::Id(schema = schema, table = "data_sp500"),
-    value = new_data,
+    value = new_data_prepared,
     append = TRUE,
     row.names = FALSE
   )
 
-  message(nrow(new_data), " new rows inserted into ", schema, ".data_sp500")
+  message(glue::glue("{nrow(new_data_prepared)} new rows inserted into {schema}.data_sp500"))
 
-  return(TRUE)
+  return(nrow(new_data_prepared))
 }

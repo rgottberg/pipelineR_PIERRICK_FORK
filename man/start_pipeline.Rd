@@ -2,23 +2,21 @@
 % Please edit documentation in R/start_pipeline.R
 \name{start_pipeline}
 \alias{start_pipeline}
-\title{Start the full data pipeline}
+\title{Start the full data pipeline: fetch, insert and log}
 \usage{
 start_pipeline(from = Sys.Date() - 7, to = Sys.Date(), batch_size = 25)
 }
 \arguments{
-\item{from}{A Date indicating the start date for historical data (default: 7 days ago).}
+\item{from}{A Date object specifying the start date. Default is 7 days ago.}
 
-\item{to}{A Date indicating the end date for historical data (default: today).}
+\item{to}{A Date object specifying the end date. Default is today.}
 
-\item{batch_size}{An integer indicating how many symbols to fetch per batch (default: 25).}
+\item{batch_size}{Number of tickers to process in each batch. Default is 25.}
 }
 \value{
-Nothing. Runs the full data pipeline.
+Nothing. Inserts new data into PostgreSQL and logs batch processing in \code{pipeline_logs}.
 }
 \description{
-This function connects to the database, fetches the list of symbols,
-downloads new OHLCV data from Yahoo Finance in batches,
-filters out already existing data, inserts the new data into the database,
-and logs each batch processing result.
+This function fetches data from Yahoo Finance for a range of dates and inserts the results
+into the student's PostgreSQL database. It processes symbols in batches and logs the process.
 }
