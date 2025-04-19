@@ -34,7 +34,7 @@ push_summary_table <- function(con, summary_table, user_login = Sys.getenv('user
     row.names = FALSE
   )
 
-  message("Summary table pushed to database ✅")
+  message("Summary table pushed to database")
 
   invisible(NULL)
 }

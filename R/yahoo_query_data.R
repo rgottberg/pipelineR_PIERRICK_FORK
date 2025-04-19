@@ -52,7 +52,7 @@ yahoo_query_data <- function(batch_list, from, to, retry = TRUE) {
       low = low,
       close = close,
       volume = volume,
-      close_adjusted = adjusted   # ⬅️ Correction ici
+      close_adjusted = adjusted
     ) |>
     dplyr::mutate(
       index_ts = if ("index_ts" %in% colnames(batch_list)) {
