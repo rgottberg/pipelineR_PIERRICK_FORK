@@ -5,3 +5,4 @@
 renv.lock
 /renv
 ^README\.Rmd$
+^\.github$
