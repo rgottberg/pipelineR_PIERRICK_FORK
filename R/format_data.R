@@ -4,7 +4,7 @@
 #' This function reshapes a wide tibble of stock prices into a long format
 #' compatible with the `data_sp500` database table.
 #'
-#' @param new_data A tibble with columns like open, high, low, close, volume, close_adjusted, etc.
+#' @param data A tibble with columns like open, high, low, close, volume, close_adjusted, etc.
 #'
 #' @return A tibble in long format with columns: index_ts, date, metric, value.
 #' @export

@@ -17,7 +17,8 @@ Imports:
     dplyr,
     glue,
     lubridate,
+    purrr,
     RPostgres,
     tibble,
     tidyquant,
-    timetk
+    tidyr
