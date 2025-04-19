@@ -48,25 +48,32 @@ start_pipeline <- function(from = Sys.Date() - 7, to = Sys.Date(), batch_size = 
       if (is.null(new_data) || nrow(new_data) == 0) {
         stop("No data returned from Yahoo Finance API.")
       }
-
       # 5.2 Insert into PostgreSQL
-      success <- new_data |>
+      # browser()
+      n_inserted  <- new_data |>
         format_data() |>
         insert_new_data(con = con)
 
-      if (!success) {
-        stop("Failed to insert new data into the database.")
-      }
-
       # 5.3 Log success
-      summary_table <- log_summary(
-        summary_table,
-        batch_id = batch_id,
-        symbol = paste(symbols_in_batch, collapse = ", "),
-        status = "ok",
-        n_rows = nrow(new_data),
-        message = "Batch processed successfully"
-      )
+      if (n_inserted > 0) {
+        summary_table <- log_summary(
+          summary_table = summary_table,
+          batch_id = batch_id,
+          symbol = paste(symbols_in_batch, collapse = ", "),
+          status = "ok",
+          n_rows = n_inserted,
+          message = "Batch processed."
+        )
+      } else {
+        summary_table <- log_summary(
+          summary_table = summary_table,
+          batch_id = batch_id,
+          symbol = paste(symbols_in_batch, collapse = ", "),
+          status = "ok",
+          n_rows = 0,
+          message = "No new rows to insert."
+        )
+      }
 
     }, error = function(e) {
       message(glue::glue("Error while processing batch {batch_id}: {e$message}"))
@@ -91,4 +98,3 @@ start_pipeline <- function(from = Sys.Date() - 7, to = Sys.Date(), batch_size = 
 
   message("Pipeline completed.")
 }
-

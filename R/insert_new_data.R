@@ -10,28 +10,44 @@
 #' @export
 insert_new_data <- function(con, new_data) {
 
-  if (missing(con) || missing(new_data)) {
+  if (is.null(con) || is.null(new_data)) {
     stop("Both 'con' and 'new_data' must be provided.")
+  }
+
+  required_cols <- c("index_ts", "date", "metric", "value")
+  if (!all(required_cols %in% colnames(new_data))) {
+    stop(glue::glue(
+      "new_data must contain the following columns: {paste(required_cols, collapse = ', ')}"
+    ))
   }
 
   schema <- Sys.getenv("PG_SCHEMA")
 
   # Load already existing combinations
+  index_ts_list <- unique(new_data$index_ts)
+  date_list <- unique(new_data$date)
+
   existing <- DBI::dbGetQuery(con, glue::glue_sql(
-    "SELECT date, index_ts, metric FROM {`schema`}.data_sp500",
+    "SELECT date, index_ts, metric
+     FROM {`schema`}.data_sp500
+     WHERE index_ts IN ({index_ts_list*})
+       AND date IN ({date_list*})",
     .con = con
   ))
 
-  # Prepare new_data (long format expected already)
-  new_data_prepared <- new_data |>
-    dplyr::semi_join(
-      tibble::as_tibble(existing) |>
-        dplyr::distinct(date, index_ts, metric),
+  # Always create a 'prepared' version
+  if (nrow(existing) > 0) {
+    new_data_prepared <- dplyr::anti_join(
+      new_data,
+      existing,
       by = c("date", "index_ts", "metric")
-      , negate = TRUE)  # Keep only rows NOT already existing
+    )
+  } else {
+    new_data_prepared <- new_data
+  }
 
   if (nrow(new_data_prepared) == 0) {
-    message("No new rows to insert.")
+    message("No new data to insert (all data already exists).")
     return(0)
   }
 

@@ -2,21 +2,19 @@
 % Please edit documentation in R/insert_new_data.R
 \name{insert_new_data}
 \alias{insert_new_data}
-\title{Insert new data into the student's PostgreSQL table}
+\title{Insert new stock data into the database}
 \usage{
-insert_new_data(data, con, schema = Sys.getenv("PG_SCHEMA"))
+insert_new_data(con, new_data)
 }
 \arguments{
-\item{data}{A tibble containing the new rows to insert. Must match the database structure.}
-
 \item{con}{A valid DBI database connection.}
 
-\item{schema}{The schema name (e.g., \"student_paul\").}
+\item{new_data}{A tibble matching the table structure.}
 }
 \value{
-True if all is well, otherwise an error is raised.
+The number of rows actually inserted.
 }
 \description{
-This function inserts new rows into the \code{data_sp500} table in the specified schema.
-It assumes that the data has already been filtered by \code{check_existing_data()}.
+This function inserts new stock data into the student's data_sp500 table inside their schema.
+It automatically removes duplicates (already existing date/index_ts/metric) before inserting.
 }
