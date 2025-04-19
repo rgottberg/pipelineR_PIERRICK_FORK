@@ -7,7 +7,7 @@
 format_data(data)
 }
 \arguments{
-\item{new_data}{A tibble with columns like open, high, low, close, volume, close_adjusted, etc.}
+\item{data}{A tibble with columns like open, high, low, close, volume, close_adjusted, etc.}
 }
 \value{
 A tibble in long format with columns: index_ts, date, metric, value.
