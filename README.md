@@ -82,13 +82,6 @@ Ou can also use the code from dev/external_env.R
 | `push_summary_table()`  | Push summary logs into the database              |
 | `start_pipeline()`      | Orchestrate the entire ETL process               |
 
-------------------------------------------------------------------------
-
-## Tests
-
-All major functions are covered by `testthat` unit tests.  
-Tests are automatically executed in the CI pipeline to ensure the
-package remains stable after each update.
 
 ------------------------------------------------------------------------
 
