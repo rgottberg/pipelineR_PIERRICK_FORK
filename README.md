@@ -63,6 +63,8 @@ pipelineR::start_pipeline(
   batch_size = 20
 )
 ```
+Ou can also use the code from dev/external_env.R
+
 
 ------------------------------------------------------------------------
 
