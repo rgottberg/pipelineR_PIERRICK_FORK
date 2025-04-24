@@ -5,6 +5,7 @@ output: github_document
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/pkinif/pipelineR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pkinif/pipelineR/actions/workflows/R-CMD-check.yaml)
 [![R-CMD-check](https://github.com/rgottberg/pipelineR_PIERRICK_FORK/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/rgottberg/pipelineR_PIERRICK_FORK/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/rgottberg/pipelineR_PIERRICK_FORK/graph/badge.svg)](https://app.codecov.io/gh/rgottberg/pipelineR_PIERRICK_FORK)
 <!-- badges: end -->
 
 
