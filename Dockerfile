@@ -19,6 +19,7 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     make \
     pandoc \
     libicu-dev \
+    libxml2-dev \
     git
 
 
