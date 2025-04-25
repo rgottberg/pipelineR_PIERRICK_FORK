@@ -20,6 +20,7 @@ jobs:
       PG_SCHEMA: ${{ secrets.PG_SCHEMA }}
       user_login: ${{ secrets.user_login }}
 
+
     steps:
       - uses: actions/checkout@v4
 
