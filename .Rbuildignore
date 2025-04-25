@@ -1,3 +1,4 @@
+^jenkins_home$
 ^renv$
 ^renv\.lock$
 ^pipelineR\.Rproj$
